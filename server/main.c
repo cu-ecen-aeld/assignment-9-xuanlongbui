@@ -1,6 +1,5 @@
 #include "aesdsocket.h"
 
-const char *file_path = "/dev/aesdchar";
 unsigned int should_exit = 0;
 int server_fd;
 int client_fd;
@@ -63,11 +62,6 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
         // exit(EXIT_FAILURE);
-        return -1;
-    }
-    if (init_file( file_path) !=0)
-    {
-        perror("Failed to open or create file");
         return -1;
     }
     /* getaddrinfo() returns a list of address structures.
@@ -198,20 +192,6 @@ int main(int argc, char *argv[])
     }
 
     // Close the file
-    if(close_file() !=0){
-        perror("Failed to close file");
-        return -1;
-    }
-    printf("File '%s' closed successfully.\n", file_path);
-
-    if (remove(file_path) == 0)
-    {
-        printf("File '%s' deleted successfully.\n", file_path);
-    }
-    else
-    {
-        perror("Error deleting file");
-    }
 
     closelog();
     return 0;

@@ -117,6 +117,7 @@ void *message_handler(void *args)
         else if (bytes_received == 0)
         {
             printf("Client %d disconnected.\n", client_fd);
+            close(fd);
             break;
         }
 
@@ -140,7 +141,7 @@ void *message_handler(void *args)
         if (buffer[total_received - 1] == '\n')
         {
             pthread_mutex_lock(&lock);
-
+            init_file("/dev/aesdchar");
             printf("Received from %d: %s", client_fd, buffer);
             ssize_t bytes_written = write(fd, buffer, total_received); // -1 to exclude null terminator
             if (bytes_written < 0)
@@ -149,6 +150,7 @@ void *message_handler(void *args)
                 // return -1;
             }
             close(fd);
+            printf("closed file descriptor %d after writing\n", fd);
             // Reinitialize the file for reading
             init_file("/dev/aesdchar");
             // Send the file content back to the client
@@ -161,7 +163,8 @@ void *message_handler(void *args)
                 // return -1;
             }
             size_t total_read = 0;
-            while (1) {
+            while (1)
+            {
             // Expand if needed
             if (total_read >= buf_size) {
                 buf_size *= 2;
@@ -177,6 +180,7 @@ void *message_handler(void *args)
 
             ssize_t bytes = read(fd, rBuffer + total_read, buf_size - total_read);
             printf("Read %zd bytes from file\n", bytes);
+            printf("Buffer content: %s\n", rBuffer);
             if (bytes < 0) {
                 perror("read");
                 free(buffer);
@@ -196,12 +200,10 @@ void *message_handler(void *args)
             {
                 perror("Error sending file data");
                 close(client_fd);
-                free(rBuffer);
                 // return -1;
                 break;
             }
             pthread_mutex_unlock(&lock);
-
             free(rBuffer);
             free(buffer);
             total_received = 0;
@@ -213,6 +215,9 @@ void *message_handler(void *args)
     if (client_fd >= 0)
     {
         close(client_fd);
+        printf("Closed connection with client %d\n", client_fd);
+        close(fd);
+        printf("Closed file descriptor %d\n", fd);
     }
     return NULL;
 }
