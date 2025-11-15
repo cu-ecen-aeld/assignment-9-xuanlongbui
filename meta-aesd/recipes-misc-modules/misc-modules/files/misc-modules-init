@@ -1,0 +1,32 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          load_modules
+# Required-Start:    $local_fs
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Load hello and faulty modules at boot
+### END INIT INFO
+
+case "$1" in
+  start)
+    echo "Loading hello and faulty modules..."
+    insmod /lib/modules/$(uname -r)/extra/hello.ko
+    insmod /lib/modules/$(uname -r)/extra/faulty.ko
+    ;;
+  stop)
+    echo "Unloading hello and faulty modules..."
+    rmmod faulty 2>/dev/null
+    rmmod hello 2>/dev/null
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0

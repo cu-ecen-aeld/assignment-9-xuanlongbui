@@ -1,0 +1,30 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          scull
+# Required-Start:    $local_fs
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Load/unload scull kernel module
+### END INIT INFO
+
+case "$1" in
+  start)
+    echo "Loading scull module..."
+    modprobe scull || insmod /lib/modules/$(uname -r)/extra/scull.ko
+    ;;
+  stop)
+    echo "Unloading scull module..."
+    rmmod scull
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0
