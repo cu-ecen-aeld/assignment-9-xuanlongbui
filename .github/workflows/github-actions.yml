@@ -19,6 +19,21 @@ jobs:
         container: cuaesd/aesd-autotest:24-assignment7
         runs-on: self-hosted
         steps:
+          - name: Set up SSH Agent and Private Key
+            uses: webfactory/ssh-agent@v0.9.0
+            with:
+              ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          - name: Install OpenSSH Client (if missing)
+            run: |
+              if ! command -v ssh &> /dev/null
+              then
+                  apt-get update && apt-get install -y openssh-client
+              fi
+          - name: Add GitHub's Public Key to Known Hosts
+            run: |
+              mkdir -p ~/.ssh
+              ssh-keyscan github.com >> ~/.ssh/known_hosts
+              chmod 600 ~/.ssh/known_hosts
           - uses: actions/checkout@v2
           - name: Checkout submodules
             run : git submodule update --init --recursive
