@@ -6,34 +6,21 @@ on:
         branches:
             - '*'
 jobs:
-  ssh-check:
-    runs-on: self-hosted # Hoặc self-hosted nếu bạn bắt buộc phải dùng runner tự host
-    
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        
-      - name: Set up SSH Agent and Private Key
-        # Action này là cách tiêu chuẩn để tải khóa riêng tư vào SSH Agent trong CI/CD
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          # Đây là nơi bạn truyền GitHub Secret chứa khóa riêng tư.
-          # BẠN PHẢI THAY THẾ 'SSH_PRIVATE_KEY' bằng tên Secret bạn đã đặt.
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
-      - name: Add GitHub's Public Key to Known Hosts
-        # Bước này cần thiết để tránh lỗi "Host key verification failed"
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-
-      - name: Check SSH Key Loaded
-        # Kiểm tra xem khóa đã được tải vào Agent hay chưa (tương đương với ssh-add -l)
-        run: ssh-add -l
-
-      - name: Test Connection to GitHub
-        # Thực hiện kết nối SSH -T chỉ để xác thực.
-        # Nếu thành công, bạn sẽ thấy thông báo "successfully authenticated".
-        # Sử dụng || true để đảm bảo bước này không làm fail workflow ngay cả khi có thông báo lỗi nhỏ từ phía SSH
-        run: ssh -T git@github.com || true
+    unit-test:
+        container: cuaesd/aesd-autotest:24-unit-test
+        runs-on: self-hosted
+        steps:
+          - uses: actions/checkout@v2
+          - name: Checkout submodules
+            run : git submodule update --init --recursive
+          - name: Run unit test
+            run: ./unit-test.sh
+    full-test:
+        container: cuaesd/aesd-autotest:24-assignment7
+        runs-on: self-hosted
+        steps:
+          - uses: actions/checkout@v2
+          - name: Checkout submodules
+            run : git submodule update --init --recursive
+          - name: Run full test
+            run: ./full-test.sh
