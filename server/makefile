@@ -4,7 +4,7 @@
 CC ?= $(CROSS_COMPILE)gcc
 
 # Compiler flags
-CFLAGS ?= -Wall -g
+CFLAGS ?= -Wall -g -I../aesd-char-driver
 
 # Linker flags (add -lrt for real-time library and -pthread for threading support)
 LDFLAGS ?= -lrt -pthread
